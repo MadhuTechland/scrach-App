@@ -4,9 +4,11 @@ import 'package:scratch_app/app/home/notification_screen.dart';
 import 'package:scratch_app/app/profile/customer_support_screen.dart';
 import 'package:scratch_app/app/profile/edit_profile_screen.dart';
 import 'package:scratch_app/app/profile/enable_notification_screen.dart';
+import 'package:scratch_app/core/models/user_model.dart';
 
 class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
+  final User user;
+  const ProfileScreen({super.key, required this.user});
 
   @override
   Widget build(BuildContext context) {
@@ -83,24 +85,31 @@ class ProfileScreen extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    const CircleAvatar(
+                    CircleAvatar(
                       radius: 40,
                       backgroundColor: Colors.grey,
-                      child: Icon(Icons.person, size: 50, color: Colors.white),
+                      backgroundImage: user.profilePic!.isNotEmpty
+                          ? NetworkImage(user.profilePic!)
+                          : null,
+                      child: user.profilePic == null ||
+                              user.profilePic!.isEmpty
+                          ? const Icon(Icons.person,
+                              size: 50, color: Colors.white)
+                          : null,
                     ),
                     const SizedBox(width: 10),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          "Shiva Kumar",
+                        Text(
+                          user.name ?? '',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const Text(
-                          "ShivaKumar123@gmail.com",
+                        Text(
+                          user.email ?? '',
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.grey,

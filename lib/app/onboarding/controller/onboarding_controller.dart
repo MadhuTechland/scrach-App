@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:scratch_app/app/dashboard/dashboard_screen.dart';
+import 'package:scratch_app/auth/view/sign_in_screen.dart';
+import 'package:scratch_app/helper/app_routes.dart';
 
 class OnboardingController extends GetxController {
   final pageController = PageController();
@@ -16,7 +18,7 @@ class OnboardingController extends GetxController {
       );
     } else {
    
-      Get.offAll(()=>const DashboardScreen());
+      Get.offAllNamed(RouteHelper.login);
     }
   }
 
