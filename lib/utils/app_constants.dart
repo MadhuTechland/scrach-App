@@ -4,7 +4,7 @@
 class AppConstants {
   static const String appName = 'Nudeal';
   static const String appVersion = '1.0';
-  static const String baseUrl = 'http://10.0.2.2:8000';
+  static const String baseUrl = 'https://mydeal.nr12brandsshop.in/public';
   static const String registerUri = '/api/register';
   static const String loginUri = '/api/login';
   static const String loginOut = '/api/logout';

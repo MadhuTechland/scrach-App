@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:scratch_app/app/home/home_controller.dart';
+import 'package:scratch_app/core/models/promotion_model.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:scratch_app/app/home/notification_screen.dart';
 import 'package:scratch_app/utils/app_constants.dart';
@@ -27,74 +28,79 @@ class _HomeScreenState extends State<HomeScreen> {
     promotionController.fetchPromotions();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Obx(() {
-        if (promotionController.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
-        }
+ @override
+Widget build(BuildContext context) {
+  final media = MediaQuery.of(context).size;
+  final height = media.height;
+  final width = media.width;
 
-        // split promos
-        final sliderPromos = promotionController.promotions
-            .where((p) => p.isSlider)
-            .toList();
-        final nonSliderPromos = promotionController.promotions
-            .where((p) => !p.isSlider)
-            .toList();
+  return Scaffold(
+    body: Obx(() {
+      if (promotionController.isLoading.value) {
+        return const Center(child: CircularProgressIndicator());
+      }
 
-        return Stack(
-          children: [
-            // Gradient background
-            Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Colors.white, Colors.red, Colors.yellowAccent],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomCenter,
-                ),
+      bool isSliderPromotion(Promotion promo) => promo.isSlider == '1';
+
+      List<Promotion> sliderPromos =
+          promotionController.promotions.where(isSliderPromotion).toList();
+      List<Promotion> nonSliderPromos =
+          promotionController.promotions.where((promo) => !isSliderPromotion(promo)).toList();
+
+      return Stack(
+        children: [
+          // Gradient background
+          Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.white, Colors.red, Colors.yellowAccent],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomCenter,
               ),
             ),
+          ),
 
-            // Main content
-            Column(
-              children: [
-                // App Bar Section
-                Container(
-                  height: MediaQuery.of(context).size.height * 0.18,
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 24, vertical: 20),
-                  decoration: const BoxDecoration(
-                    color: Colors.red,
-                    borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(30),
-                      bottomRight: Radius.circular(30),
-                    ),
-                  ),
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 40),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Image.asset(
-                            'assets/images/logo.png',
-                            height: 60,
-                          ),
-                          InkWell(
-                            onTap: () {
-                              Get.to(() => const NotificationListScreen());
-                            },
-                            child: Image.asset(
-                              'assets/images/notification_image.png',
-                              height: 40,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+          // Main content
+          Column(
+            children: [
+              // App Bar Section
+              Container(
+                height: height * 0.18,
+                padding: EdgeInsets.symmetric(
+                  horizontal: width * 0.06, // ~24 on a 400px width screen
+                  vertical: height * 0.025,  // ~20 on a 800px height screen
+                ),
+                decoration: const BoxDecoration(
+                  color: Colors.red,
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(30),
+                    bottomRight: Radius.circular(30),
                   ),
                 ),
+                child: Column(
+                  children: [
+                    SizedBox(height: height * 0.05), // ~40
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Image.asset(
+                          'assets/images/logo.jpg',
+                          height: height * 0.075, // ~60
+                        ),
+                        InkWell(
+                          onTap: () {
+                            Get.to(() => const NotificationListScreen());
+                          },
+                          child: Image.asset(
+                            'assets/images/notification_image.png',
+                            height: height * 0.05, // ~40
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
 
                 const SizedBox(height: 10),
 

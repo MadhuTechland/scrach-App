@@ -14,6 +14,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final authController = Get.find<AuthController>();
+  bool _obscureText = true;
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +36,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Image.asset(
-                      'assets/images/logo.png',
+                      'assets/images/logo.jpg',
                       height: 72,
                       fit: BoxFit.contain,
                     ),
@@ -50,8 +51,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 20),
                     TextField(
                       controller: emailController,
+                      keyboardType: TextInputType.number,
                       decoration: const InputDecoration(
-                        labelText: 'Email',
+                        labelText: 'Phone',
                         filled: true, // <-- ADD THIS LINE
                         fillColor: Colors.white, // <-- already correct
                         border: OutlineInputBorder(
@@ -86,11 +88,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 16),
                     TextField(
                       controller: passwordController,
-                      decoration: const InputDecoration(
+                      obscureText: _obscureText, // 👈 This hides/shows password
+                      decoration: InputDecoration(
                         labelText: 'Password',
-                        filled: true, // <-- ADD THIS LINE
-                        fillColor: Colors.white, // <-- already correct
-                        border: OutlineInputBorder(
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: const OutlineInputBorder(
                           borderSide: BorderSide(
                             color: Colors.grey,
                             width: 2.0,
@@ -99,7 +102,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             Radius.circular(12),
                           ),
                         ),
-                        enabledBorder: OutlineInputBorder(
+                        enabledBorder: const OutlineInputBorder(
                           borderSide: BorderSide(
                             color: Colors.grey,
                             width: 2.0,
@@ -108,7 +111,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             Radius.circular(12),
                           ),
                         ),
-                        focusedBorder: OutlineInputBorder(
+                        focusedBorder: const OutlineInputBorder(
                           borderSide: BorderSide(
                             color: Colors.blue,
                             width: 2.5,
@@ -116,6 +119,18 @@ class _LoginScreenState extends State<LoginScreen> {
                           borderRadius: BorderRadius.all(
                             Radius.circular(12),
                           ),
+                        ),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscureText
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscureText = !_obscureText;
+                            });
+                          },
                         ),
                       ),
                     ),
@@ -152,7 +167,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                 child: CircularProgressIndicator(
                                     strokeWidth: 2, color: Colors.white),
                               )
-                            : const Text('Login', style: TextStyle(fontSize: 20),),
+                            : const Text(
+                                'Login',
+                                style: TextStyle(fontSize: 20),
+                              ),
                       ),
                     ),
                   ],

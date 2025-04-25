@@ -47,15 +47,22 @@ class User {
     deletedAt = json['deleted_at'];
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
-    profilePic = json['profile_pic'] != null && !json['profile_pic'].toString().startsWith('http')
-    ? 'http://10.0.2.2:8000/api/${json['profile_pic']}'
-    : json['profile_pic'];
+    profilePic = json['profile_pic'] != null
+    ? (json['profile_pic'].toString().startsWith('http')
+        ? json['profile_pic'].toString().replaceFirst('/api/', '/')
+        : json['profile_pic'].toString().contains('profile_pic/')
+            ? 'https://mydeal.nr12brandsshop.in/public/${json['profile_pic']}'
+            : 'https://mydeal.nr12brandsshop.in/public/profile_pic/${json['profile_pic']}')
+    : null;
+
     print("checking for first name $id");
     print("checking for name $name");
     print("checking for first name $lastName");
     print("checking for first name $email");
     print("checking for first name $phone");
-    print("checking for first name $rememberToken");
+    print("checking for profile pic $profilePic");
+    print("RAW profile pic from API: ${json['profile_pic']}");
+
   }
 
   Map<String, dynamic> toJson() {

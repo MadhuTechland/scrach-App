@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-
 class EnableNotificationScreen extends StatefulWidget {
   const EnableNotificationScreen({super.key});
 
   @override
-  _EnableNotificationScreenState createState() => _EnableNotificationScreenState();
+  _EnableNotificationScreenState createState() =>
+      _EnableNotificationScreenState();
 }
 
 class _EnableNotificationScreenState extends State<EnableNotificationScreen> {
@@ -76,22 +76,25 @@ class _EnableNotificationScreenState extends State<EnableNotificationScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
-                          Text(
-                            "Push Notifications",
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                          ),
-                          SizedBox(height: 5),
-                          Text(
-                            "Keep it on, if you want to receive notifications",
-                            style: TextStyle(fontSize: 12, color: Colors.grey),
-                          ),
-                        ],
+                      Expanded(
+                        // ⬅️ Wrap the Column
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: const [
+                            Text(
+                              "Push Notifications",
+                              style: TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
+                            SizedBox(height: 5),
+                            Text(
+                              "Keep it on, if you want to receive notifications",
+                              style:
+                                  TextStyle(fontSize: 12, color: Colors.grey),
+                            ),
+                          ],
+                        ),
                       ),
-                      
-                      // Toggle Switch
                       Switch(
                         value: isNotificationEnabled,
                         activeColor: Colors.red,

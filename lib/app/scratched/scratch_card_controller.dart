@@ -10,6 +10,7 @@ class ScratchCardController extends GetxController {
   var scratchedCards = <ScratchCard>[].obs;
   var unscratchedCards = <ScratchCard>[].obs;
   var isLoading = true.obs;
+  int get totalCards => scratchedCards.length + unscratchedCards.length;
 
   void loadScratchCards(int userId) async {
     try {
@@ -25,10 +26,10 @@ class ScratchCardController extends GetxController {
   }
 
   Future<void> markAsScratched(int cardId) async {
-  try {
-    await scratchCardRepo.markAsScratched(cardId);
-  } catch (e) {
-    print('Error marking card as scratched: $e');
+    try {
+      await scratchCardRepo.markAsScratched(cardId);
+    } catch (e) {
+      print('Error marking card as scratched: $e');
+    }
   }
-}
 }

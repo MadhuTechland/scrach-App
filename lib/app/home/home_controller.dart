@@ -18,15 +18,21 @@ class PromotionController extends GetxController {
     super.onInit();
   }
 
-  // Method to fetch promotions
-  Future<void> fetchPromotions() async {
-    try {
-      isLoading(true);
-      promotions = await apiClient.getPromotions();
-    } catch (e) {
-      print('Error: $e');
-    } finally {
-      isLoading(false);
-    }
+ var sliderPromos = <Promotion>[].obs;
+var nonSliderPromos = <Promotion>[].obs;
+
+Future<void> fetchPromotions() async {
+  try {
+    isLoading(true);
+    final allPromos = await apiClient.getPromotions();
+    promotions = allPromos;
+    sliderPromos.value = allPromos.where((p) => p.isSlider == '1').toList();
+    nonSliderPromos.value = allPromos.where((p) => p.isSlider != '1').toList();
+  } catch (e) {
+    print('Error: $e');
+  } finally {
+    isLoading(false);
   }
+}
+
 }

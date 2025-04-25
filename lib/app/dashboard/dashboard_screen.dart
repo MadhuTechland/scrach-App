@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:scratch_app/app/home/home_screen.dart';
 import 'package:scratch_app/app/profile/profile_screen.dart';
+import 'package:scratch_app/app/scratched/scratch_card_controller.dart';
 import 'package:scratch_app/app/scratched/scratched_screen.dart';
 import 'package:scratch_app/app/unscratched/unscratched_screen.dart';
 import 'package:scratch_app/auth/controller/auth_controller.dart';
+import 'package:scratch_app/data/repository/scratch_repo.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -17,14 +19,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
   int _selectedIndex = 0;
 
   @override
+  void initState() {
+    super.initState();
+    Get.put(ScratchCardController(
+      scratchCardRepo: ScratchCardRepo(apiClient: Get.find()),
+    ));
+  }
+
+  @override
   Widget build(BuildContext context) {
     final AuthController authController = Get.find<AuthController>();
 
     return GetBuilder<AuthController>(
       builder: (_) {
-        // Check if the user is available
         if (authController.user == null) {
-          return Center(child: CircularProgressIndicator()); // Show loading if user is not available
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
         }
 
         final List<Widget> _screens = [
@@ -49,9 +60,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
             },
             items: const [
               BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-              BottomNavigationBarItem(icon: Icon(Icons.check_box), label: "Scratched"),
-              BottomNavigationBarItem(icon: Icon(Icons.crop_square), label: "Unscratched"),
-              BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
+              BottomNavigationBarItem(
+                  icon: Icon(Icons.check_box), label: "Scratched"),
+              BottomNavigationBarItem(
+                  icon: Icon(Icons.crop_square), label: "Unscratched"),
+              BottomNavigationBarItem(
+                  icon: Icon(Icons.person), label: "Profile"),
             ],
           ),
         );

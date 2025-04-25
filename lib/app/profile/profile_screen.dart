@@ -4,6 +4,7 @@ import 'package:scratch_app/app/home/notification_screen.dart';
 import 'package:scratch_app/app/profile/customer_support_screen.dart';
 import 'package:scratch_app/app/profile/edit_profile_screen.dart';
 import 'package:scratch_app/app/profile/enable_notification_screen.dart';
+import 'package:scratch_app/auth/controller/auth_controller.dart';
 import 'package:scratch_app/core/models/user_model.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -12,6 +13,10 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final media = MediaQuery.of(context).size;
+    final height = media.height;
+    final width = media.width;
+
     return Scaffold(
       body: Stack(
         children: [
@@ -30,9 +35,11 @@ class ProfileScreen extends StatelessWidget {
             children: [
               // Custom App Bar
               Container(
-                height: MediaQuery.of(context).size.height * 0.18,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                height: height * 0.18,
+                padding: EdgeInsets.symmetric(
+                  horizontal: width * 0.06, // ~24 on 400px width
+                  vertical: height * 0.025, // ~20 on 800px height
+                ),
                 decoration: const BoxDecoration(
                   color: Colors.red,
                   borderRadius: BorderRadius.only(
@@ -43,15 +50,15 @@ class ProfileScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    const SizedBox(height: 50),
+                    SizedBox(height: height * 0.0625), // ~50
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
+                        Text(
                           "Profile",
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: 20,
+                            fontSize: height * 0.025, // ~20
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -63,7 +70,7 @@ class ProfileScreen extends StatelessWidget {
                           child: Center(
                             child: Image.asset(
                               'assets/images/notification_image.png',
-                              height: 40,
+                              height: height * 0.05, // ~40
                             ),
                           ),
                         ),
@@ -88,11 +95,11 @@ class ProfileScreen extends StatelessWidget {
                     CircleAvatar(
                       radius: 40,
                       backgroundColor: Colors.grey,
-                      backgroundImage: user.profilePic!.isNotEmpty
+                      backgroundImage: (user.profilePic != null &&
+                              user.profilePic!.isNotEmpty)
                           ? NetworkImage(user.profilePic!)
                           : null,
-                      child: user.profilePic == null ||
-                              user.profilePic!.isEmpty
+                      child: user.profilePic == null || user.profilePic!.isEmpty
                           ? const Icon(Icons.person,
                               size: 50, color: Colors.white)
                           : null,
@@ -270,7 +277,8 @@ class ProfileScreen extends StatelessWidget {
                   GestureDetector(
                     onTap: () {
                       Navigator.pop(context);
-                      print("User logged out");
+                      final authController = Get.find<AuthController>();
+                      authController.logout();
                     },
                     child: Container(
                       width: 100,

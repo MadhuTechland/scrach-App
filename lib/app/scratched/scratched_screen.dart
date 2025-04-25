@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:scratch_app/app/home/notification_screen.dart';
 import 'package:scratch_app/app/scratched/scratch_card_controller.dart';
+import 'package:scratch_app/data/provider/api_client.dart';
 import 'package:scratch_app/data/repository/scratch_repo.dart';
 
 class ScratchedScreen extends StatelessWidget {
@@ -13,6 +14,10 @@ class ScratchedScreen extends StatelessWidget {
       scratchCardRepo: ScratchCardRepo(apiClient: Get.find()),
     ));
     controller.loadScratchCards(2); // Replace 2 with dynamic userId if needed
+
+    final media = MediaQuery.of(context).size;
+    final height = media.height;
+    final width = media.width;
 
     return Obx(() {
       if (controller.isLoading.value) {
@@ -40,8 +45,11 @@ class ScratchedScreen extends StatelessWidget {
               children: [
                 // Custom AppBar
                 Container(
-                  height: MediaQuery.of(context).size.height * 0.18,
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                  height: height * 0.18,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: width * 0.06, // ~24 on 400 width
+                    vertical: height * 0.025, // ~20 on 800 height
+                  ),
                   decoration: const BoxDecoration(
                     color: Colors.red,
                     borderRadius: BorderRadius.only(
@@ -52,19 +60,18 @@ class ScratchedScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      const SizedBox(height: 50),
+                      SizedBox(height: height * 0.0625), // ~50 on 800 height
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
+                          Text(
                             "Scratched cards",
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 20,
+                              fontSize: height * 0.025, // ~20
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          // Notification Icon
                           InkWell(
                             onTap: () {
                               Get.to(() => const NotificationListScreen());
@@ -72,7 +79,7 @@ class ScratchedScreen extends StatelessWidget {
                             child: Center(
                               child: Image.asset(
                                 'assets/images/notification_image.png',
-                                height: 40,
+                                height: height * 0.05, // ~40
                               ),
                             ),
                           ),
@@ -82,51 +89,52 @@ class ScratchedScreen extends StatelessWidget {
                   ),
                 ),
 
+                // Padding(
+                //   padding: const EdgeInsets.all(16.0),
+                //   child: Text(
+                //     "You have Scratched ${controller.scratchedCards.length} cards",
+                //     style: const TextStyle(
+                //       fontSize: 18,
+                //       fontWeight: FontWeight.bold,
+                //       color: Colors.black,
+                //     ),
+                //   ),
+                // ),
+
                 // Grid of Scratched Cards
                 Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: GridView.builder(
-                      itemCount: controller.scratchedCards.length,
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 10,
-                        mainAxisSpacing: 10,
-                        childAspectRatio: 1,
-                      ),
-                      itemBuilder: (context, index) {
-                        final card = controller.scratchedCards[index];
-                        return Container(
-                          decoration: BoxDecoration(
-                            color: Colors.yellow,
-                            borderRadius: BorderRadius.circular(20),
-                            image: const DecorationImage(
-                              image: AssetImage('assets/images/congratulations.png'),
-                              fit: BoxFit.cover,
-                            ),
+                  child: RefreshIndicator(
+                    onRefresh: () async {
+                      controller.loadScratchCards(2); // Refresh data
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: GridView.builder(
+                          itemCount: controller.scratchedCards.length,
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 10,
+                            mainAxisSpacing: 10,
+                            childAspectRatio: 1,
                           ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const SizedBox(height: 54),
-                              Text(
-                                "₹${card.price}",
-                                style: const TextStyle(
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const Text(
-                                "cashback",
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
+                          itemBuilder: (context, index) {
+                            final card = controller.scratchedCards[index];
+                            return ClipRRect(
+                              borderRadius: BorderRadius.circular(20),
+                              child: card.image != null
+                                  ? Image.network(
+                                      '${Get.find<ApiClient>().appBaseUrl}/${card.image}',
+                                      fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (context, error, stackTrace) =>
+                                              const Icon(Icons.broken_image,
+                                                  size: 50),
+                                    )
+                                  : const Icon(Icons.image_not_supported,
+                                      size: 50),
+                            );
+                          }),
                     ),
                   ),
                 ),
