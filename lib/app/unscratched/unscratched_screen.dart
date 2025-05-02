@@ -3,6 +3,7 @@ import 'package:flutter_scratcher/widgets.dart';
 import 'package:get/get.dart';
 import 'package:scratch_app/app/home/notification_screen.dart';
 import 'package:scratch_app/app/scratched/scratch_card_controller.dart';
+import 'package:scratch_app/app/unscratched/scratch_screen.dart';
 import 'package:scratch_app/data/provider/api_client.dart';
 import 'package:scratch_app/data/repository/scratch_repo.dart';
 
@@ -157,80 +158,116 @@ class UnscratchedScreen extends StatelessWidget {
                                       final card =
                                           controller.unscratchedCards[index];
                                       return RepaintBoundary(
-                                        child: Scratcher(
-                                          brushSize: 50,
-                                          threshold: 50,
-                                          color: Colors.red,
-                                          onThreshold: () async {
-                                            final cardId = card.id;
-                                            await controller
-                                                .markAsScratched(cardId);
-                                            controller.loadScratchCards(2);
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(16),
+                                          child: Scratcher(
+                                            brushSize: 50,
+                                            threshold: 50,
+                                            color: Colors.red,
+                                            onThreshold: () async {
+                                              final cardId = card.id;
+                                              await controller
+                                                  .markAsScratched(cardId);
+                                              controller.loadScratchCards(2);
 
-                                            // 🎉 Show Congratulations popup with scratched image
-                                            Get.defaultDialog(
-                                              title: "🎉 Congratulations!",
-                                              titleStyle: const TextStyle(
-                                                fontSize: 22,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                              content: Column(
-                                                children: [
-                                                  ClipRRect(
+                                              Get.bottomSheet(
+                                                Container(
+                                                  padding:
+                                                      const EdgeInsets.all(16),
+                                                  decoration:
+                                                      const BoxDecoration(
+                                                    color: Colors.white,
                                                     borderRadius:
-                                                        BorderRadius.circular(
-                                                            16),
-                                                    child: Image.network(
-                                                      '${Get.find<ApiClient>().appBaseUrl}/${card.image}',
-                                                      height: 150,
-                                                      fit: BoxFit.cover,
-                                                      errorBuilder: (context,
-                                                              error,
-                                                              stackTrace) =>
-                                                          const Icon(
-                                                              Icons.error),
-                                                    ),
+                                                        BorderRadius.vertical(
+                                                            top:
+                                                                Radius.circular(
+                                                                    20)),
                                                   ),
-                                                  const SizedBox(height: 10),
-                                                  const Text(
-                                                    "You’ve just scratched a reward card!",
-                                                    style:
-                                                        TextStyle(fontSize: 16),
-                                                    textAlign: TextAlign.center,
-                                                  ),
-                                                  const SizedBox(height: 10),
-                                                  ElevatedButton(
-                                                    onPressed: () => Get.back(),
-                                                    child:
-                                                        const Text("Awesome!"),
-                                                  ),
-                                                ],
-                                              ),
-                                              radius: 20,
-                                              backgroundColor: Colors.white,
-                                              barrierDismissible: false,
-                                            );
-                                          },
-                                          child: Container(
-                                            width: double.infinity,
-                                            height: double.infinity,
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(20),
-                                              image: card.image != null
-                                                  ? DecorationImage(
-                                                      image: NetworkImage(
-                                                        '${Get.find<ApiClient>().appBaseUrl}/${card.image}',
+                                                  child: Column(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      const Text(
+                                                        "🎉 Congratulations!",
+                                                        style: TextStyle(
+                                                          fontSize: 22,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
                                                       ),
-                                                      fit: BoxFit.cover,
-                                                    )
-                                                  : null,
+                                                      const SizedBox(
+                                                          height: 12),
+                                                      ClipRRect(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(16),
+                                                        child: Image.network(
+                                                          '${Get.find<ApiClient>().appBaseUrl}/${card.image}',
+                                                          height: 150,
+                                                          fit: BoxFit.cover,
+                                                          errorBuilder: (context,
+                                                                  error,
+                                                                  stackTrace) =>
+                                                              const Icon(
+                                                                  Icons.error),
+                                                        ),
+                                                      ),
+                                                      const SizedBox(
+                                                          height: 10),
+                                                      const Text(
+                                                        "You’ve just scratched a reward card!",
+                                                        style: TextStyle(
+                                                            fontSize: 16),
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                      ),
+                                                      const SizedBox(
+                                                          height: 16),
+                                                      SizedBox(
+                                                        width: double.infinity,
+                                                        child: ElevatedButton(
+                                                          onPressed: () =>
+                                                              Get.back(),
+                                                          child: const Text(
+                                                              "Awesome!"),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                isDismissible: true,
+                                                enableDrag: true,
+                                              );
+                                            },
+                                            child: InkWell(
+                                              onTap: () {
+                                                Get.to(() => ScratchCardScreen(
+                                                      scratchCard: card,
+                                                    ));
+                                              },
+                                              child: Container(
+                                                width: double.infinity,
+                                                height: double.infinity,
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(20),
+                                                  image: card.image != null
+                                                      ? DecorationImage(
+                                                          image: NetworkImage(
+                                                            '${Get.find<ApiClient>().appBaseUrl}/${card.image}',
+                                                          ),
+                                                          fit: BoxFit.cover,
+                                                        )
+                                                      : null,
+                                                ),
+                                                child: card.image == null
+                                                    ? const Center(
+                                                        child: Icon(Icons
+                                                            .image_not_supported))
+                                                    : null,
+                                              ),
                                             ),
-                                            child: card.image == null
-                                                ? const Center(
-                                                    child: Icon(Icons
-                                                        .image_not_supported))
-                                                : null,
                                           ),
                                         ),
                                       );
