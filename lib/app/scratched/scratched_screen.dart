@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:scratch_app/app/home/notification_screen.dart';
 import 'package:scratch_app/app/scratched/scratch_card_controller.dart';
+import 'package:scratch_app/auth/controller/auth_controller.dart';
 import 'package:scratch_app/data/provider/api_client.dart';
 import 'package:scratch_app/data/repository/scratch_repo.dart';
 
@@ -13,7 +14,16 @@ class ScratchedScreen extends StatelessWidget {
     final controller = Get.put(ScratchCardController(
       scratchCardRepo: ScratchCardRepo(apiClient: Get.find()),
     ));
-    controller.loadScratchCards(2); // Replace 2 with dynamic userId if needed
+    final authController = Get.find<AuthController>();
+
+    final userId = authController.user?.id;
+
+    // Only load scratch cards if userId is available
+    if (userId != null) {
+      controller.loadScratchCards(userId); // ✅ dynamic user ID
+    } else {
+      debugPrint("User ID not found, user might not be logged in");
+    }
 
     final media = MediaQuery.of(context).size;
     final height = media.height;
@@ -105,7 +115,7 @@ class ScratchedScreen extends StatelessWidget {
                 Expanded(
                   child: RefreshIndicator(
                     onRefresh: () async {
-                      controller.loadScratchCards(2); // Refresh data
+                      controller.loadScratchCards(userId!); // Refresh data
                     },
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),

@@ -20,7 +20,7 @@ class ScratchCard {
   factory ScratchCard.fromJson(Map<String, dynamic> json) {
     return ScratchCard(
       id: json['id'],
-      name: json['name'],
+      name: json['name'] ?? '',
       price: json['price'],
       userId: json['user_id'],
       crashCardId: json['crash_card_id'],

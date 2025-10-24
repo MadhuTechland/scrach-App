@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:scratch_app/app/home/notification_screen.dart';
 import 'package:scratch_app/app/scratched/scratch_card_controller.dart';
 import 'package:scratch_app/app/unscratched/scratch_screen.dart';
+import 'package:scratch_app/auth/controller/auth_controller.dart';
 import 'package:scratch_app/data/provider/api_client.dart';
 import 'package:scratch_app/data/repository/scratch_repo.dart';
 
@@ -13,7 +14,16 @@ class UnscratchedScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<ScratchCardController>();
-    controller.loadScratchCards(2); // Replace with dynamic userId
+    final authController = Get.find<AuthController>();
+
+    final userId = authController.user?.id;
+
+    // Only load scratch cards if userId is available
+    if (userId != null) {
+      controller.loadScratchCards(userId); // ✅ dynamic user ID
+    } else {
+      debugPrint("User ID not found, user might not be logged in");
+    }
 
     final media = MediaQuery.of(context).size;
     final height = media.height;
@@ -91,7 +101,7 @@ class UnscratchedScreen extends StatelessWidget {
                 Expanded(
                   child: RefreshIndicator(
                     onRefresh: () async {
-                      controller.loadScratchCards(2); // Refresh data
+                      controller.loadScratchCards(userId!); // Refresh data
                     },
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
@@ -157,116 +167,51 @@ class UnscratchedScreen extends StatelessWidget {
                                     itemBuilder: (context, index) {
                                       final card =
                                           controller.unscratchedCards[index];
-                                      return RepaintBoundary(
-                                        child: ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(16),
-                                          child: Scratcher(
-                                            brushSize: 50,
-                                            threshold: 50,
-                                            color: Colors.red,
-                                            onThreshold: () async {
-                                              final cardId = card.id;
-                                              await controller
-                                                  .markAsScratched(cardId);
-                                              controller.loadScratchCards(2);
-
-                                              Get.bottomSheet(
-                                                Container(
-                                                  padding:
-                                                      const EdgeInsets.all(16),
-                                                  decoration:
-                                                      const BoxDecoration(
-                                                    color: Colors.white,
-                                                    borderRadius:
-                                                        BorderRadius.vertical(
-                                                            top:
-                                                                Radius.circular(
-                                                                    20)),
-                                                  ),
-                                                  child: Column(
-                                                    mainAxisSize:
-                                                        MainAxisSize.min,
-                                                    children: [
-                                                      const Text(
-                                                        "🎉 Congratulations!",
+                                      return ClipRRect(
+                                        borderRadius: BorderRadius.circular(16),
+                                        child: InkWell(
+                                          onTap: () {
+                                            Get.to(() => ScratchCardScreen(
+                                                scratchCard: card));
+                                          },
+                                          onLongPress: () {
+                                            print(
+                                                "🔴 Long press detected on card: ${card.name}");
+                                            controller
+                                                .shareUnscratchedCard(card);
+                                          },
+                                          child: RepaintBoundary(
+                                            // moved inside InkWell
+                                            child: Container(
+                                              width: double.infinity,
+                                              height: double.infinity,
+                                              decoration: BoxDecoration(
+                                                color: Colors.red,
+                                                borderRadius:
+                                                    BorderRadius.circular(20),
+                                              ),
+                                              child: card.image == null
+                                                  ? const Center(
+                                                      child: Icon(
+                                                          Icons.pan_tool,
+                                                          color: Colors.white,
+                                                          size: 30),
+                                                    )
+                                                  : Container(
+                                                      color: Colors.red
+                                                          .withOpacity(0.6),
+                                                      alignment:
+                                                          Alignment.center,
+                                                      child: const Text(
+                                                        "Tap to Scratch",
                                                         style: TextStyle(
-                                                          fontSize: 22,
+                                                          color: Colors.white,
+                                                          fontSize: 16,
                                                           fontWeight:
                                                               FontWeight.bold,
                                                         ),
                                                       ),
-                                                      const SizedBox(
-                                                          height: 12),
-                                                      ClipRRect(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(16),
-                                                        child: Image.network(
-                                                          '${Get.find<ApiClient>().appBaseUrl}/${card.image}',
-                                                          height: 150,
-                                                          fit: BoxFit.cover,
-                                                          errorBuilder: (context,
-                                                                  error,
-                                                                  stackTrace) =>
-                                                              const Icon(
-                                                                  Icons.error),
-                                                        ),
-                                                      ),
-                                                      const SizedBox(
-                                                          height: 10),
-                                                      const Text(
-                                                        "You’ve just scratched a reward card!",
-                                                        style: TextStyle(
-                                                            fontSize: 16),
-                                                        textAlign:
-                                                            TextAlign.center,
-                                                      ),
-                                                      const SizedBox(
-                                                          height: 16),
-                                                      SizedBox(
-                                                        width: double.infinity,
-                                                        child: ElevatedButton(
-                                                          onPressed: () =>
-                                                              Get.back(),
-                                                          child: const Text(
-                                                              "Awesome!"),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                                isDismissible: true,
-                                                enableDrag: true,
-                                              );
-                                            },
-                                            child: InkWell(
-                                              onTap: () {
-                                                Get.to(() => ScratchCardScreen(
-                                                      scratchCard: card,
-                                                    ));
-                                              },
-                                              child: Container(
-                                                width: double.infinity,
-                                                height: double.infinity,
-                                                decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(20),
-                                                  image: card.image != null
-                                                      ? DecorationImage(
-                                                          image: NetworkImage(
-                                                            '${Get.find<ApiClient>().appBaseUrl}/${card.image}',
-                                                          ),
-                                                          fit: BoxFit.cover,
-                                                        )
-                                                      : null,
-                                                ),
-                                                child: card.image == null
-                                                    ? const Center(
-                                                        child: Icon(Icons
-                                                            .image_not_supported))
-                                                    : null,
-                                              ),
+                                                    ),
                                             ),
                                           ),
                                         ),

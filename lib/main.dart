@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:scratch_app/app/dashboard/dashboard_screen.dart';
+import 'package:scratch_app/app/profile/edit_profile_controller.dart';
 import 'package:scratch_app/auth/view/sign_in_screen.dart';
 import 'package:scratch_app/data/provider/api_client.dart';
 import 'package:scratch_app/helper/app_routes.dart';
@@ -20,6 +22,7 @@ void main() async {
   Get.put(ApiClient(appBaseUrl: AppConstants.baseUrl, sharedPreferences: sharedPreferences));
   Get.put(AuthRepo(apiClient: Get.find()));
   Get.put(AuthController(authRepo: Get.find()));
+  Get.lazyPut(() => EditProfileController(Get.find<AuthRepo>()));
 
   runApp(const MyApp());
 }
@@ -30,31 +33,39 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authController = Get.find<AuthController>();
-    return GetMaterialApp(
-      title: 'Scratch App',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      initialRoute: RouteHelper.initial,  // Set the initial route if needed
-      getPages: RouteHelper.routes,
-      debugShowCheckedModeBanner: false,
-      home: FutureBuilder<bool>(
-        future: authController.checkLoginStatus(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            );
-          }
 
-          if (snapshot.data == true) {
-            return const DashboardScreen();
-          } else {
-            return const OnboardingScreen();
-          }
-        },
-      ),
+    return ScreenUtilInit(
+      designSize: const Size(375, 812), // iPhone X as a baseline
+      minTextAdapt: true,
+      splitScreenMode: true,
+      builder: (context, child) {
+        return GetMaterialApp(
+          title: 'Scratch App',
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+            useMaterial3: true,
+          ),
+          initialRoute: RouteHelper.initial,
+          getPages: RouteHelper.routes,
+          debugShowCheckedModeBanner: false,
+          home: FutureBuilder<bool>(
+            future: authController.checkLoginStatus(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Scaffold(
+                  body: Center(child: CircularProgressIndicator()),
+                );
+              }
+
+              if (snapshot.data == true) {
+                return const DashboardScreen();
+              } else {
+                return const OnboardingScreen();
+              }
+            },
+          ),
+        );
+      },
     );
   }
 }

@@ -14,7 +14,7 @@ class Promotion {
   factory Promotion.fromJson(Map<String, dynamic> json) {
     return Promotion(
       id: json['id'],
-      name: json['name'],
+      name: json['name'] ?? '',
       isSlider: json['is_slider'].toString(), // ensure it's a string
       image: json['image'],
     );

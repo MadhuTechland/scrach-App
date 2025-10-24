@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:scratch_app/app/home/home_controller.dart';
+import 'package:scratch_app/app/profile/edit_profile_controller.dart';
 import 'package:scratch_app/app/scratched/scratch_card_controller.dart';
 import 'package:scratch_app/data/provider/api_client.dart';
 import 'package:scratch_app/data/repository/scratch_repo.dart';
@@ -18,9 +19,10 @@ Future<void> init() async {
       ));
 
   Get.lazyPut(() => AuthRepo(apiClient: Get.find()));
-
   Get.lazyPut(() => AuthController(authRepo: Get.find()));
- Get.lazyPut(() => PromotionController(apiClient: Get.find()));
- Get.put(ScratchCardRepo(apiClient: Get.find()));
+  Get.lazyPut(() => PromotionController(apiClient: Get.find()));
+  Get.put(ScratchCardRepo(apiClient: Get.find()));
   Get.put(ScratchCardController(scratchCardRepo: Get.find()));
+  Get.lazyPut(() => EditProfileController(Get.find<AuthRepo>()));
+
 }

@@ -3,11 +3,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:scratch_app/app/home/home_controller.dart';
+import 'package:scratch_app/auth/controller/auth_controller.dart';
 import 'package:scratch_app/core/models/promotion_model.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:scratch_app/app/home/notification_screen.dart';
 import 'package:scratch_app/utils/app_constants.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -20,6 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final PromotionController promotionController = Get.put(
     PromotionController(apiClient: Get.find()),
   );
+  final authController = Get.find<AuthController>();
   int _currentIndex = 0;
 
   @override
@@ -28,79 +32,122 @@ class _HomeScreenState extends State<HomeScreen> {
     promotionController.fetchPromotions();
   }
 
- @override
-Widget build(BuildContext context) {
-  final media = MediaQuery.of(context).size;
-  final height = media.height;
-  final width = media.width;
+  @override
+  Widget build(BuildContext context) {
+    final media = MediaQuery.of(context).size;
+    final height = media.height;
+    final width = media.width;
 
-  return Scaffold(
-    body: Obx(() {
-      if (promotionController.isLoading.value) {
-        return const Center(child: CircularProgressIndicator());
-      }
+    return Scaffold(
+      body: Obx(() {
+        if (promotionController.isLoading.value) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        print("checking for company logo: ${authController.user?.companyLogo}");
 
-      bool isSliderPromotion(Promotion promo) => promo.isSlider == '1';
+        bool isSliderPromotion(Promotion promo) => promo.isSlider == '1';
 
-      List<Promotion> sliderPromos =
-          promotionController.promotions.where(isSliderPromotion).toList();
-      List<Promotion> nonSliderPromos =
-          promotionController.promotions.where((promo) => !isSliderPromotion(promo)).toList();
+        List<Promotion> sliderPromos =
+            promotionController.promotions.where(isSliderPromotion).toList();
+        List<Promotion> nonSliderPromos = promotionController.promotions
+            .where((promo) => !isSliderPromotion(promo))
+            .toList();
 
-      return Stack(
-        children: [
-          // Gradient background
-          Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Colors.white, Colors.red, Colors.yellowAccent],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomCenter,
+        return Stack(
+          children: [
+            // Gradient background
+            Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Colors.white, Colors.red, Colors.yellowAccent],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomCenter,
+                ),
               ),
             ),
-          ),
 
-          // Main content
-          Column(
-            children: [
-              // App Bar Section
-              Container(
-                height: height * 0.18,
-                padding: EdgeInsets.symmetric(
-                  horizontal: width * 0.06, // ~24 on a 400px width screen
-                  vertical: height * 0.025,  // ~20 on a 800px height screen
-                ),
-                decoration: const BoxDecoration(
-                  color: Colors.red,
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(30),
-                    bottomRight: Radius.circular(30),
+            // Main content
+            Column(
+              children: [
+                // App Bar Section
+                Container(
+                  height: height * 0.18,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: width * 0.06, // ~24 on a 400px width screen
+                    vertical: height * 0.025, // ~20 on a 800px height screen
+                  ),
+                  decoration: const BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(30),
+                      bottomRight: Radius.circular(30),
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      SizedBox(height: height * 0.02), // ~40
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          authController.user?.companyLogo != null
+                              ? Container(
+                                  height: height * 0.08,
+                                  width: height * 0.08,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: Colors.white, // Border color
+                                      width: 2, // Thickness of the border
+                                    ),
+                                    borderRadius: BorderRadius.circular(
+                                        8), // Slight rounding (not circle)
+                                  ),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Image.network(
+                                      authController.user!.companyLogo!,
+                                      fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (context, error, stackTrace) {
+                                        return const Icon(Icons.broken_image,
+                                            size: 40, color: Colors.white);
+                                      },
+                                    ),
+                                  ),
+                                )
+                              : const Icon(Icons.business,
+                                  size: 40, color: Colors.white),
+                          SizedBox(width: width * 0.02), 
+                          Expanded(
+                            child: Center(
+                              child: Text(
+                                authController.user?.companyName ?? '',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                ),
+                                overflow: TextOverflow
+                                    .ellipsis, 
+                                maxLines: 3,
+                                softWrap: false,
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: width * 0.02), // ~8 on 400 width
+                          InkWell(
+                            onTap: () {
+                              Get.to(() => const NotificationListScreen());
+                            },
+                            child: Image.asset(
+                              'assets/images/notification_image.png',
+                              height: height * 0.05, // ~40
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
-                child: Column(
-                  children: [
-                    SizedBox(height: height * 0.05), // ~40
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Image.asset(
-                          'assets/images/logo.jpg',
-                          height: height * 0.075, // ~60
-                        ),
-                        InkWell(
-                          onTap: () {
-                            Get.to(() => const NotificationListScreen());
-                          },
-                          child: Image.asset(
-                            'assets/images/notification_image.png',
-                            height: height * 0.05, // ~40
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
 
                 const SizedBox(height: 10),
 

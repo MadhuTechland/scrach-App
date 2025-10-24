@@ -17,14 +17,20 @@ class AuthController extends GetxController {
     loadUserFromPrefs(); // ✅ Load user on controller init
   }
 
+  Future<void> saveUserToPrefs(User user) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('user', jsonEncode(user.toJson()));
+    this.user = user;
+    update();
+  }
+
   Future<void> loadUserFromPrefs() async {
     final prefs = await SharedPreferences.getInstance();
-    final userJson = prefs.getString('user');
-    if (userJson != null) {
-      user = User.fromJson(jsonDecode(userJson));
-      print("Loaded user from prefs: ${user!.name}");
+    final userData = prefs.getString('user');
+    if (userData != null) {
+      user = User.fromJson(jsonDecode(userData));
+      update();
     }
-    update();
   }
 
   Future<bool> login(String usernameOrEmail, String password) async {
@@ -43,12 +49,12 @@ class AuthController extends GetxController {
       // ✅ Save token locally
       await authRepo.saveToken(token);
 
-      // ✅ Save user data in memory or local storage
-      user = User.fromJson(userJson);
 
       // ✅ Save user to SharedPreferences
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('user', jsonEncode(user!.toJson()));
+      await prefs.setString(
+          'user', jsonEncode(userJson)); // 👈 store raw API data
+      user = User.fromJson(userJson);
 
       final keys = prefs.getKeys();
       for (String key in keys) {

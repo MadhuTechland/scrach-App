@@ -21,5 +21,14 @@ class AppConstants {
   static const String getUnscratchedUsers = '/api/getUnscratchedUsers';
   static const String promotions = '/api/promotions';
   static const String scratchCards = '/api/user/{userId}/scratch-cards';
+  static const String updateProfileUri = '/api/user/update-profile';
+  static const String uploadPromotionsUrl = "/api/upload-promotions";
+  static const String sliderCount = "/api/slider-count";
+
+
+
+
+
+  static String get updateProfileUrl => baseUrl + updateProfileUri;
 
 }

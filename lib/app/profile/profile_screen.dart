@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:scratch_app/app/home/notification_screen.dart';
+import 'package:scratch_app/app/profile/custom_slider_screen.dart';
 import 'package:scratch_app/app/profile/customer_support_screen.dart';
 import 'package:scratch_app/app/profile/edit_profile_screen.dart';
 import 'package:scratch_app/app/profile/enable_notification_screen.dart';
 import 'package:scratch_app/auth/controller/auth_controller.dart';
 import 'package:scratch_app/core/models/user_model.dart';
+import 'package:scratch_app/data/repository/auth_repo.dart';
 
 class ProfileScreen extends StatelessWidget {
   final User user;
@@ -131,7 +133,7 @@ class ProfileScreen extends StatelessWidget {
                             ),
                           ),
                           onPressed: () {
-                            Get.to(() => const EditProfileScreen());
+                            Get.to(() => EditProfileScreen());
                           },
                           child: const Text(
                             "Edit",
@@ -156,6 +158,10 @@ class ProfileScreen extends StatelessWidget {
                     _profileOption("Notification", Icons.notifications,
                         onTap: () {
                       Get.to(() => const EnableNotificationScreen());
+                    }),
+                    _profileOption("Custom Sliders", Icons.slideshow,
+                        onTap: () {
+                      Get.to(() => CustomSliderScreen(authRepo: Get.find<AuthRepo>()));
                     }),
                     _profileOption("Customer support", Icons.support_agent,
                         onTap: () {

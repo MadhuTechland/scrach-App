@@ -14,23 +14,25 @@ class User {
   String? createdAt;
   String? updatedAt;
   String? profilePic;
+  String? companyName;
+  String? companyLogo;
 
   User(
       {this.id,
-        this.name,
-        this.firstName,
-        this.lastName,
-        this.email,
-        this.phone,
-        this.age,
-        this.roleId,
-        this.uniqueId,
-        this.profilePic,
-        this.gender,
-        this.rememberToken,
-        this.deletedAt,
-        this.createdAt,
-        this.updatedAt});
+      this.name,
+      this.firstName,
+      this.lastName,
+      this.email,
+      this.phone,
+      this.age,
+      this.roleId,
+      this.uniqueId,
+      this.profilePic,
+      this.gender,
+      this.rememberToken,
+      this.deletedAt,
+      this.createdAt,
+      this.updatedAt});
 
   User.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -48,11 +50,17 @@ class User {
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
     profilePic = json['profile_pic'] != null
-    ? (json['profile_pic'].toString().startsWith('http')
-        ? json['profile_pic'].toString().replaceFirst('/api/', '/')
-        : json['profile_pic'].toString().contains('profile_pic/')
-            ? 'https://mydeal.nr12brandsshop.in/public/${json['profile_pic']}'
-            : 'https://mydeal.nr12brandsshop.in/public/profile_pic/${json['profile_pic']}')
+        ? (json['profile_pic'].toString().startsWith('http')
+            ? json['profile_pic'].toString().replaceFirst('/api/', '/')
+            : json['profile_pic'].toString().contains('profile_pic/')
+                ? 'https://mydeal.nr12brandsshop.in/public/${json['profile_pic']}'
+                : 'https://mydeal.nr12brandsshop.in/public/profile_pic/${json['profile_pic']}')
+        : null;
+    companyName = json['company_name'];
+    companyLogo = json['company_logo'] != null
+    ? (json['company_logo'].toString().startsWith('http')
+        ? json['company_logo']
+        : 'https://mydeal.nr12brandsshop.in/public/${json['company_logo'].toString().replaceFirst(RegExp(r'^/+'), '')}')
     : null;
 
     print("checking for first name $id");
@@ -62,7 +70,6 @@ class User {
     print("checking for first name $phone");
     print("checking for profile pic $profilePic");
     print("RAW profile pic from API: ${json['profile_pic']}");
-
   }
 
   Map<String, dynamic> toJson() {
@@ -80,9 +87,11 @@ class User {
     data['gender'] = gender;
     data['remember_token'] = rememberToken;
     data['deleted_at'] = deletedAt;
+    data['company_name'] = companyName;
+    data['company_logo'] = companyLogo;
     data['created_at'] = createdAt;
     data['updated_at'] = updatedAt;
-    
+
     print("checking for first name $id");
     print("checking for first name $name");
     print("checking for first name $lastName");

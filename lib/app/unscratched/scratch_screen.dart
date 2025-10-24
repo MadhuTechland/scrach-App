@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_scratcher/widgets.dart';
 import 'package:get/get.dart';
 import 'package:scratch_app/app/scratched/scratch_card_controller.dart';
+import 'package:scratch_app/auth/controller/auth_controller.dart';
 import 'package:scratch_app/core/models/scratch_card_model.dart';
 import 'package:scratch_app/data/provider/api_client.dart';
 
@@ -12,6 +13,14 @@ class ScratchCardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<ScratchCardController>();
+    final authController = Get.find<AuthController>();
+
+    final userId = authController.user?.id;
+    final mediaWidth = MediaQuery.of(context).size.width;
+    final mediaHeight = MediaQuery.of(context).size.height;
+
+    final double cardSize = mediaWidth * 0.7; // 70% of screen width for a square
+
     return Scaffold(
       backgroundColor: Colors.grey[800],
       appBar: AppBar(
@@ -22,7 +31,7 @@ class ScratchCardScreen extends StatelessWidget {
           child: CircleAvatar(
             backgroundColor: Colors.white,
             child: IconButton(
-              icon: Icon(Icons.close),
+              icon: Icon(Icons.close, color: Colors.black),
               onPressed: () {
                 Navigator.pop(context);
               },
@@ -35,8 +44,8 @@ class ScratchCardScreen extends StatelessWidget {
           Expanded(
             child: Center(
               child: SizedBox(
-                width: 200,
-                height: 200,
+                width: cardSize,
+                height: cardSize,
                 child: RepaintBoundary(
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(16),
@@ -47,11 +56,10 @@ class ScratchCardScreen extends StatelessWidget {
                       onThreshold: () async {
                         final cardId = scratchCard.id;
                         await controller.markAsScratched(cardId);
-                        controller.loadScratchCards(2);
-
+                        controller.loadScratchCards(userId!);
                         Get.back();
 
-                        // 🎉 Show Congratulations popup with scratched image
+                        // Bottom sheet
                         Get.bottomSheet(
                           Container(
                             padding: const EdgeInsets.all(16),
@@ -75,7 +83,7 @@ class ScratchCardScreen extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(16),
                                   child: Image.network(
                                     '${Get.find<ApiClient>().appBaseUrl}/${scratchCard.image}',
-                                    height: 150,
+                                    height: mediaHeight * 0.2,
                                     fit: BoxFit.cover,
                                     errorBuilder:
                                         (context, error, stackTrace) =>
@@ -118,8 +126,7 @@ class ScratchCardScreen extends StatelessWidget {
                               : null,
                         ),
                         child: scratchCard.image == null
-                            ? const Center(
-                                child: Icon(Icons.image_not_supported))
+                            ? const Center(child: Icon(Icons.image_not_supported))
                             : null,
                       ),
                     ),
@@ -130,8 +137,11 @@ class ScratchCardScreen extends StatelessWidget {
           ),
           Container(
             width: double.infinity,
-            height: 160,
-            padding: const EdgeInsets.all(24),
+            height: mediaHeight * 0.2,
+            padding: EdgeInsets.symmetric(
+              horizontal: mediaWidth * 0.05,
+              vertical: mediaHeight * 0.025,
+            ),
             decoration: BoxDecoration(
               color: Colors.indigo[900],
               borderRadius: BorderRadius.circular(10),
@@ -141,10 +151,7 @@ class ScratchCardScreen extends StatelessWidget {
               children: <Widget>[
                 Row(
                   children: <Widget>[
-                    Image.asset(
-                      'assets/images/logo.jpg',
-                      height: 45,
-                    ),
+                    Image.asset('assets/images/logo.jpg', height: mediaHeight * 0.05),
                     const SizedBox(width: 8),
                     const Text(
                       'Gift card',
@@ -156,7 +163,7 @@ class ScratchCardScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 12),
                 const Text(
                   'Rewarded for scratching a card in nudeal',
                   style: TextStyle(
