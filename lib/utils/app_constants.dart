@@ -1,11 +1,11 @@
 
-
-
 class AppConstants {
   static const String appName = 'Nudeal';
   static const String appVersion = '1.0';
   static const String baseUrl = 'https://mydeal.nr12brandsshop.in/public';
   static const String registerUri = '/api/register';
+  static const String registerUserUri = '/api/register-mobile';
+  static const String requestOtp = '/api/request-otp';
   static const String loginUri = '/api/login';
   static const String loginOut = '/api/logout';
   static const String verifyEmail = '/api/verifyEmail';
@@ -24,11 +24,10 @@ class AppConstants {
   static const String updateProfileUri = '/api/user/update-profile';
   static const String uploadPromotionsUrl = "/api/upload-promotions";
   static const String sliderCount = "/api/slider-count";
+  static const String deleteUser = "/api/delete-user/";
+  static const String createCards = "api/scratchcards/create-assign/";
 
-
-
-
-
+  
   static String get updateProfileUrl => baseUrl + updateProfileUri;
 
 }

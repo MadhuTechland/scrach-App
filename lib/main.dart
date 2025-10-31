@@ -17,13 +17,11 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   final sharedPreferences = await SharedPreferences.getInstance();
-
   Get.put(sharedPreferences);
   Get.put(ApiClient(appBaseUrl: AppConstants.baseUrl, sharedPreferences: sharedPreferences));
   Get.put(AuthRepo(apiClient: Get.find()));
   Get.put(AuthController(authRepo: Get.find()));
   Get.lazyPut(() => EditProfileController(Get.find<AuthRepo>()));
-
   runApp(const MyApp());
 }
 
@@ -35,7 +33,7 @@ class MyApp extends StatelessWidget {
     final authController = Get.find<AuthController>();
 
     return ScreenUtilInit(
-      designSize: const Size(375, 812), // iPhone X as a baseline
+      designSize: const Size(375, 812),
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) {
@@ -58,7 +56,7 @@ class MyApp extends StatelessWidget {
               }
 
               if (snapshot.data == true) {
-                return const DashboardScreen();
+                return DashboardScreen(key: dashboardKey);
               } else {
                 return const OnboardingScreen();
               }

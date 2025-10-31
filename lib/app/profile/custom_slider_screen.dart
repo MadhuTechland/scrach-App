@@ -4,10 +4,11 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:scratch_app/data/repository/auth_repo.dart';
+import '../dashboard/dashboard_screen.dart';
 
 class CustomSliderScreen extends StatefulWidget {
   final AuthRepo authRepo;
-  CustomSliderScreen({super.key, required this.authRepo});
+  const CustomSliderScreen({super.key, required this.authRepo});
 
   @override
   State<CustomSliderScreen> createState() => _CustomSliderScreenState();
@@ -15,6 +16,7 @@ class CustomSliderScreen extends StatefulWidget {
 
 class _CustomSliderScreenState extends State<CustomSliderScreen> {
   final List<XFile> _selectedImages = [];
+  bool _isLoading = false;
 
   Future<void> _pickImages() async {
     int count = await widget.authRepo.getCustomSliderCount();
@@ -38,12 +40,13 @@ class _CustomSliderScreenState extends State<CustomSliderScreen> {
     }
   }
 
-  void _submitImages() async {
+  Future<void> _submitImages() async {
     if (_selectedImages.isEmpty) {
       Get.snackbar("Error", "Please select at least one image.");
       return;
     }
 
+    setState(() => _isLoading = true);
     final files = _selectedImages.map((x) => File(x.path)).toList();
 
     try {
@@ -52,13 +55,25 @@ class _CustomSliderScreenState extends State<CustomSliderScreen> {
 
       if (streamedResponse.statusCode == 200) {
         Get.snackbar("Success", "Images uploaded successfully");
-        setState(() => _selectedImages.clear());
+        setState(() {
+          _selectedImages.clear();
+          _isLoading = false;
+        });
+
+        // ✅ Navigate to Home tab after short delay
+        await Future.delayed(const Duration(milliseconds: 500));
+        if (dashboardKey.currentState != null) {
+          dashboardKey.currentState!.switchToTab(0);
+        }
+        Get.offAll(() => const DashboardScreen());
       } else {
         debugPrint("Upload failed: $responseBody");
+        setState(() => _isLoading = false);
         Get.snackbar("Error", "Upload failed");
       }
     } catch (e) {
       debugPrint("Exception: $e");
+      setState(() => _isLoading = false);
       Get.snackbar("Error", "Something went wrong");
     }
   }
@@ -88,10 +103,6 @@ class _CustomSliderScreenState extends State<CustomSliderScreen> {
                   padding: EdgeInsets.symmetric(horizontal: 16.w),
                   child: Row(
                     children: [
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back, color: Colors.white),
-                        onPressed: () => Navigator.pop(context),
-                      ),
                       SizedBox(width: 8.w),
                       Text(
                         "Custom Sliders",
@@ -107,7 +118,7 @@ class _CustomSliderScreenState extends State<CustomSliderScreen> {
 
                 SizedBox(height: 20.h),
 
-                // Main body with center alignment if no images
+                // Main body
                 Expanded(
                   child: SingleChildScrollView(
                     child: Column(
@@ -116,11 +127,9 @@ class _CustomSliderScreenState extends State<CustomSliderScreen> {
                           : MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        SizedBox(
-                          height: _selectedImages.isEmpty ? 100.h : 30.h,
-                        ),
+                        SizedBox(height: _selectedImages.isEmpty ? 100.h : 30.h),
 
-                        // Photo icon box
+                        // Image Picker
                         Center(
                           child: GestureDetector(
                             onTap: _pickImages,
@@ -183,12 +192,12 @@ class _CustomSliderScreenState extends State<CustomSliderScreen> {
                   ),
                 ),
 
-                // Submit Button at bottom
+                // Submit Button
                 Padding(
                   padding: EdgeInsets.only(bottom: 30.h),
                   child: Center(
                     child: ElevatedButton(
-                      onPressed: _submitImages,
+                      onPressed: _isLoading ? null : _submitImages,
                       style: ElevatedButton.styleFrom(
                         padding: EdgeInsets.symmetric(
                           horizontal: 40.w,
@@ -200,19 +209,37 @@ class _CustomSliderScreenState extends State<CustomSliderScreen> {
                           borderRadius: BorderRadius.circular(12.r),
                         ),
                       ),
-                      child: Text(
-                        "Submit",
-                        style: TextStyle(
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+                      child: _isLoading
+                          ? const SizedBox(
+                              height: 22,
+                              width: 22,
+                              child: CircularProgressIndicator(
+                                color: Colors.red,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : Text(
+                              "Submit",
+                              style: TextStyle(
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                     ),
                   ),
                 ),
               ],
             ),
           ),
+
+          // ✅ Full-screen loader overlay (optional, for better UX)
+          if (_isLoading)
+            Container(
+              color: Colors.black.withOpacity(0.4),
+              child: const Center(
+                child: CircularProgressIndicator(color: Colors.white),
+              ),
+            ),
         ],
       ),
     );

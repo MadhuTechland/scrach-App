@@ -14,7 +14,7 @@ class AuthController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    loadUserFromPrefs(); // ✅ Load user on controller init
+    loadUserFromPrefs(); 
   }
 
   Future<void> saveUserToPrefs(User user) async {
@@ -49,11 +49,9 @@ class AuthController extends GetxController {
       // ✅ Save token locally
       await authRepo.saveToken(token);
 
-
       // ✅ Save user to SharedPreferences
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(
-          'user', jsonEncode(userJson)); // 👈 store raw API data
+      await prefs.setString('user', jsonEncode(userJson));
       user = User.fromJson(userJson);
 
       final keys = prefs.getKeys();
@@ -73,6 +71,27 @@ class AuthController extends GetxController {
     }
   }
 
+  Future<bool> requestOtp(String phone) async {
+    isLoading = true;
+    update();
+
+    final response = await authRepo.requestOtp(phone);
+    isLoading = false;
+    update();
+
+    if (response['status'] == true) {
+      Get.snackbar('Success', response['res'] ?? 'OTP sent successfully');
+      // Get.toNamed('/otp', arguments: {
+      //   'phone': phone,
+      //   'otp': response['otp'].toString(),
+      // });
+      return true;
+    } else {
+      Get.snackbar('Error', response['res'] ?? 'Failed to send OTP');
+      return false;
+    }
+  }
+
   Future<bool> checkLoginStatus() async {
     final token = await authRepo.getToken();
     return token != null && token.isNotEmpty;
@@ -80,10 +99,107 @@ class AuthController extends GetxController {
 
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.clear(); // Clear all saved data
-    user = null; // Clear the user in memory
-    update(); // Notify UI
+    await prefs.clear(); 
+    user = null; 
+    update(); 
 
-    Get.offAllNamed('/login'); // Navigate to login screen
+    Get.offAllNamed('/login'); 
+  }
+
+  Future<Map<String, dynamic>> registerUser({
+    required String name,
+    required String firstName,
+    required String lastName,
+    required String phone,
+    required String email,
+    required String dob,
+    required String gender,
+    required String password,
+  }) async {
+    isLoading = true;
+    update();
+
+    final response = await authRepo.register(
+      name: name,
+      firstName: firstName,
+      lastName: lastName,
+      phone: phone,
+      email: email,
+      dob: dob,
+      gender: gender,
+      password: password,
+    );
+
+    isLoading = false;
+    update();
+
+    return response;
+  }
+
+  Future<bool> verifyOtp({
+    required String phone,
+    required String otp,
+  }) async {
+    isLoading = true;
+    update();
+
+    final response = await authRepo.verifyOtp(phone: phone, otp: otp);
+
+    isLoading = false;
+    update();
+
+    if (response['status'] == true) {
+      // ✅ Save user info if returned
+      if (response.containsKey('user')) {
+        final userJson = response['user'];
+        user = User.fromJson(userJson);
+        await saveUserToPrefs(user!);
+      }
+
+      // ✅ Optionally store token
+      if (response.containsKey('token')) {
+        final token = response['token'];
+        await authRepo.saveToken(token);
+        final userJson = response['user'];
+        user = User.fromJson(userJson);
+        await saveUserToPrefs(user!);
+      }
+
+      return true;
+    } else {
+      Get.snackbar('Error', response['res'] ?? 'Invalid OTP');
+      return false;
+    }
+  }
+
+  Future<bool> verifyRegisterOtp({
+    required String phone,
+    required String email,
+    required String otp,
+  }) async {
+    isLoading = true;
+    update();
+
+    final response = await authRepo.verifyRegisterOtp(
+      phone: phone,
+      email: email,
+      otp: otp,
+    );
+
+    isLoading = false;
+    update();
+
+    if (response['status'] == true) {
+      // ✅ Save user info if provided
+      if (response.containsKey('user')) {
+        final userJson = response['user'];
+        user = User.fromJson(userJson);
+        await saveUserToPrefs(user!);
+      }
+      return true;
+    } else {
+      Get.snackbar('Error', response['res'] ?? 'Invalid OTP');
+      return false;
+    }
   }
 }

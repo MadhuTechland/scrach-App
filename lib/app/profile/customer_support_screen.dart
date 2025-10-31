@@ -4,29 +4,40 @@ import 'package:url_launcher/url_launcher.dart';
 class CustomerSupportScreen extends StatelessWidget {
   const CustomerSupportScreen({super.key});
 
-Future<void> _callSupport() async {
-  final Uri phoneUri = Uri.parse('tel:8977778784');
-  if (await canLaunchUrl(phoneUri)) {
-    await launchUrl(phoneUri);
-  } else {
-    debugPrint("Could not launch $phoneUri");
+  Future<void> _callSupport() async {
+    final Uri phoneUri = Uri.parse('tel:9000263029');
+    if (await canLaunchUrl(phoneUri)) {
+      await launchUrl(phoneUri);
+    } else {
+      debugPrint("Could not launch $phoneUri");
+    }
   }
-}
 
-Future<void> _emailSupport() async {
-  final Uri emailUri = Uri.parse('mailto:support@example.com?subject=Support');
-  if (await canLaunchUrl(emailUri)) {
-    await launchUrl(emailUri);
-  } else {
-    debugPrint("Could not launch $emailUri");
+  Future<void> _emailSupport() async {
+    final Uri emailUri = Uri.parse('mailto:customercare12brandsk@gmail.com?subject=Support');
+    if (await canLaunchUrl(emailUri)) {
+      await launchUrl(emailUri);
+    } else {
+      debugPrint("Could not launch $emailUri");
+    }
   }
-}
+
+  Future<void> _whatsappSupport() async {
+    final Uri whatsappUri = Uri.parse(
+        'https://wa.me/+919000263029?text=Hello%20Support%2C%20I%20need%20assistance');
+    if (await canLaunchUrl(whatsappUri)) {
+      await launchUrl(whatsappUri, mode: LaunchMode.externalApplication);
+    } else {
+      debugPrint("Could not launch WhatsApp");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
+          // Background Gradient
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -36,6 +47,8 @@ Future<void> _emailSupport() async {
               ),
             ),
           ),
+
+          // Content
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -48,13 +61,11 @@ Future<void> _emailSupport() async {
                   children: [
                     IconButton(
                       icon: const Icon(Icons.arrow_back, color: Colors.white),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
+                      onPressed: () => Navigator.pop(context),
                     ),
                     const SizedBox(width: 10),
                     const Text(
-                      "Customer support",
+                      "Customer Support",
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 20,
@@ -64,65 +75,75 @@ Future<void> _emailSupport() async {
                   ],
                 ),
               ),
-
-              const SizedBox(height: 20),
-
-              // Notification List
             ],
           ),
+
+          // Center Buttons
           Center(
             child: Column(
-              mainAxisSize: MainAxisSize
-                  .min, // Makes the column take only necessary space
-              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                // Contact Us
+                // Call Support
                 GestureDetector(
-                  onTap: () async {
-                    _callSupport();
-                  },
-                  child: Container(
-                    width: 140,
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: const Column(
-                      children: [
-                        Icon(Icons.phone, color: Colors.red, size: 40),
-                        SizedBox(height: 10),
-                        Text("Contact Us", style: TextStyle(fontSize: 16)),
-                      ],
-                    ),
+                  onTap: _callSupport,
+                  child: _buildSupportCard(
+                    icon: Icons.phone,
+                    label: "Call Us",
                   ),
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 25),
 
-                // Email Us
+                // Email Support
                 GestureDetector(
-                  onTap: () async {
-                    _emailSupport();
-                  },
-                  child: Container(
-                    width: 140,
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: const Column(
-                      children: [
-                        Icon(Icons.email, color: Colors.red, size: 40),
-                        SizedBox(height: 10),
-                        Text("Email Us", style: TextStyle(fontSize: 16)),
-                      ],
-                    ),
+                  onTap: _emailSupport,
+                  child: _buildSupportCard(
+                    icon: Icons.email,
+                    label: "Email Us",
+                  ),
+                ),
+                const SizedBox(height: 25),
+
+                // WhatsApp Support
+                GestureDetector(
+                  onTap: _whatsappSupport,
+                  child: _buildSupportCard(
+                    icon: Icons.chat,
+                    label: "Purchase Cards",
+                    iconColor: Colors.green,
                   ),
                 ),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSupportCard({
+    required IconData icon,
+    required String label,
+    Color iconColor = Colors.red,
+  }) {
+    return Container(
+      width: 180,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black26,
+            blurRadius: 4,
+            offset: Offset(2, 2),
           )
+        ],
+      ),
+      child: Column(
+        children: [
+          Icon(icon, color: iconColor, size: 40),
+          const SizedBox(height: 10),
+          Text(label, style: const TextStyle(fontSize: 12)),
         ],
       ),
     );

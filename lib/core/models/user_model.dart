@@ -5,7 +5,7 @@ class User {
   String? firstName;
   String? email;
   String? phone;
-  String? age;
+  dynamic? age;
   String? roleId;
   String? uniqueId;
   String? gender;

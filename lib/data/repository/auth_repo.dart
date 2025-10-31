@@ -44,7 +44,6 @@ class AuthRepo {
   }) async {
     isLoading.value = true;
 
-    // Create request headers
     var headers = {
       'Authorization': 'Bearer $token',
       'Content-Type': 'multipart/form-data',
@@ -70,9 +69,7 @@ class AuthRepo {
 
     final streamedResponse = await request.send();
     final response = await Response.fromStream(streamedResponse);
-
     isLoading.value = false;
-
     return response;
   }
 
@@ -84,12 +81,116 @@ class AuthRepo {
     );
   }
 
-  Future<int> getCustomSliderCount() async {
-  final response = await apiClient.getData(AppConstants.sliderCount); // create proper route
-  if (response.statusCode == 200) {
-    return jsonDecode(response.body)['count'] ?? 0;
-  } else {
-    throw Exception("Failed to get slider count");
+  Future<Map<String, dynamic>> register({
+    required String name,
+    required String firstName,
+    required String lastName,
+    required String phone,
+    required String email,
+    required String dob,
+    required String gender,
+    required String password,
+  }) async {
+    final response = await apiClient.postData(
+      AppConstants.registerUserUri,
+      {
+        'name': name,
+        'first_name': firstName,
+        'last_name': lastName,
+        'email': email,
+        'password': password,
+        'gender': gender,
+        'dob': dob,
+        'phone': phone,
+        'terms': 'yes',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      print('Register failed with status: ${response.statusCode}');
+      return {
+        'status': false,
+        'res': 'Failed to register. Try again.',
+      };
+    }
   }
-}
+
+  Future<Map<String, dynamic>> verifyOtp({
+    required String phone,
+    required String otp,
+  }) async {
+    final response = await apiClient.postData(
+      '/api/verify-otp',
+      {
+        'phone': phone,
+        'otp': otp,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      print('OTP verification failed with status: ${response.statusCode}');
+      return {
+        'status': false,
+        'res': 'Failed to verify OTP. Try again.',
+      };
+    }
+  }
+
+  Future<Map<String, dynamic>> verifyRegisterOtp({
+    required String phone,
+    required String email,
+    required String otp,
+  }) async {
+    final response = await apiClient.postData(
+      '/api/verify-register-otp',
+      {
+        'phone': phone,
+        'email': email,
+        'otp': otp,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      print(
+          'Register OTP verification failed with status: ${response.statusCode}');
+      return {
+        'status': false,
+        'res': 'Failed to verify registration OTP. Try again.',
+      };
+    }
+  }
+
+  Future<Map<String, dynamic>> requestOtp(String phone) async {
+    try {
+      final response = await apiClient.postData(
+        '/api/request-otp',
+        {'phone': phone},
+      );
+      print('OTP API response: ${response.body}');
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      return data;
+    } catch (e) {
+      print('Error in requestOtp: $e');
+      return {
+        'status': false,
+        'res': 'Something went wrong. Please try again later.',
+      };
+    }
+  }
+
+  Future<int> getCustomSliderCount() async {
+    final response = await apiClient
+        .getData(AppConstants.sliderCount); // create proper route
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body)['count'] ?? 0;
+    } else {
+      throw Exception("Failed to get slider count");
+    }
+  }
 }

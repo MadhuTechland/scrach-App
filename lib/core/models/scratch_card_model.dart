@@ -6,6 +6,8 @@ class ScratchCard {
   final int crashCardId;
   final bool isScratched;
   final String? image;
+  final String? winnerName;
+  final String? phoneNumber;
 
   ScratchCard({
     required this.id,
@@ -15,6 +17,8 @@ class ScratchCard {
     required this.crashCardId,
     required this.isScratched,
     this.image,
+    this.winnerName,
+    this.phoneNumber,
   });
 
   factory ScratchCard.fromJson(Map<String, dynamic> json) {
@@ -26,6 +30,8 @@ class ScratchCard {
       crashCardId: json['crash_card_id'],
       isScratched: json['is_scratched'] == 1,
       image: json['crash_card']?['image'],
+      winnerName: json['winner_user'] ?? 'Unknow',
+      phoneNumber: json['phone_number'] ?? '0000000000',
     );
   }
 }

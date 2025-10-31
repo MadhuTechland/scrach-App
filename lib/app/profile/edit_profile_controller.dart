@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:scratch_app/core/models/user_model.dart';
 import 'package:scratch_app/data/repository/auth_repo.dart';
 import 'package:scratch_app/auth/controller/auth_controller.dart';
+import 'package:image_cropper/image_cropper.dart';
 
 class EditProfileController extends GetxController {
   final AuthRepo repository;
@@ -30,7 +31,7 @@ class EditProfileController extends GetxController {
 
   final isLoading = false.obs;
 
-  final isReady = false.obs; // Add this
+  final isReady = false.obs; 
 
   @override
   void onInit() {
@@ -51,7 +52,7 @@ class EditProfileController extends GetxController {
       selectedGender.value = _normalizeGender(user.gender);
       email.value = user.email ?? '';
     }
-    isReady.value = true; // ✅ Mark ready
+    isReady.value = true; 
     super.onInit();
   }
 
@@ -110,16 +111,57 @@ class EditProfileController extends GetxController {
     }
   }
 
+  // Future<void> pickImage({required bool isProfile}) async {
+  //   final picker = ImagePicker();
+  //   final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+  //   if (image != null) {
+  //     if (isProfile) {
+  //       profileImage = File(image.path);
+  //     } else {
+  //       companyLogo = File(image.path);
+  //     }
+  //     update();
+  //   }
+  // }
   Future<void> pickImage({required bool isProfile}) async {
-    final picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-    if (image != null) {
+  final picker = ImagePicker();
+  final XFile? pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+  if (pickedFile != null) {
+    // Step 1: Crop the image
+    final croppedFile = await ImageCropper().cropImage(
+      sourcePath: pickedFile.path,
+      aspectRatioPresets: [
+        CropAspectRatioPreset.square,
+        CropAspectRatioPreset.ratio3x2,
+        CropAspectRatioPreset.original,
+        CropAspectRatioPreset.ratio4x3,
+        CropAspectRatioPreset.ratio16x9
+      ],
+      uiSettings: [
+        AndroidUiSettings(
+          toolbarTitle: 'Crop Image',
+          toolbarColor: Colors.blue,
+          toolbarWidgetColor: Colors.white,
+          initAspectRatio: CropAspectRatioPreset.original,
+          lockAspectRatio: false,
+        ),
+        IOSUiSettings(
+          title: 'Crop Image',
+        ),
+      ],
+    );
+
+    // Step 2: Save cropped image
+    if (croppedFile != null) {
+      final File imageFile = File(croppedFile.path);
       if (isProfile) {
-        profileImage = File(image.path);
+        profileImage = imageFile;
       } else {
-        companyLogo = File(image.path);
+        companyLogo = imageFile;
       }
-      update();
+      update(); // or setState if using StatefulWidget
     }
   }
+}
 }

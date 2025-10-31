@@ -2,12 +2,15 @@
 
 import 'dart:convert';
 import 'dart:io';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:mime/mime.dart';
 import 'package:scratch_app/core/models/promotion_model.dart';
 import 'package:scratch_app/data/repository/auth_repo.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../auth/controller/auth_controller.dart';
 
 class ApiClient {
   final String appBaseUrl;
@@ -28,7 +31,9 @@ class ApiClient {
   }
 
   Future<List<Promotion>> getPromotions() async {
-    final response = await http.get(Uri.parse(appBaseUrl + '/api/promotions'));
+    final userId = Get.find<AuthController>().user?.id;
+
+    final response = await http.get(Uri.parse(appBaseUrl + '/api/promotions/${userId}'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body)['data'] as List;

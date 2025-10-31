@@ -17,6 +17,7 @@ class RouteHelper {
   static const String home = '/homescreen';
   static const String scratched = '/scratched';
   static const String unScratched = '/unscratched';
+  static const String verifyOtp = '/verifyOtp';
 
   static List<GetPage> routes = [
     GetPage(name: initial, page: () => const OnboardingScreen()),

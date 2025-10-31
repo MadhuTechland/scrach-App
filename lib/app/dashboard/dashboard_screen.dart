@@ -8,6 +8,9 @@ import 'package:scratch_app/app/unscratched/unscratched_screen.dart';
 import 'package:scratch_app/auth/controller/auth_controller.dart';
 import 'package:scratch_app/data/repository/scratch_repo.dart';
 
+
+final GlobalKey<_DashboardScreenState> dashboardKey = GlobalKey<_DashboardScreenState>();
+
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 
@@ -17,6 +20,12 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   int _selectedIndex = 0;
+
+   void switchToTab(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
 
   @override
   void initState() {
@@ -42,7 +51,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           const HomeScreen(),
           const ScratchedScreen(),
           UnscratchedScreen(),
-          ProfileScreen(user: authController.user!),
+          // ProfileScreen(user: authController.user!),
         ];
 
         return Scaffold(
@@ -64,8 +73,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   icon: Icon(Icons.check_box), label: "Scratched"),
               BottomNavigationBarItem(
                   icon: Icon(Icons.crop_square), label: "Unscratched"),
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.person), label: "Profile"),
+              // BottomNavigationBarItem(
+              //     icon: Icon(Icons.person), label: "Profile"),
             ],
           ),
         );

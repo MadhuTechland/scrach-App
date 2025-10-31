@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_scratcher/widgets.dart';
 import 'package:get/get.dart';
@@ -7,9 +9,12 @@ import 'package:scratch_app/app/unscratched/scratch_screen.dart';
 import 'package:scratch_app/auth/controller/auth_controller.dart';
 import 'package:scratch_app/data/provider/api_client.dart';
 import 'package:scratch_app/data/repository/scratch_repo.dart';
+import 'package:scratch_app/utils/app_constants.dart';
+import 'package:http/http.dart' as http;
 
 class UnscratchedScreen extends StatelessWidget {
   const UnscratchedScreen({super.key});
+
 
   @override
   Widget build(BuildContext context) {
